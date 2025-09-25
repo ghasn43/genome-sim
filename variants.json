@@ -1,0 +1,128 @@
+{
+  "SLC24A5_A111T": {
+    "gene": "SLC24A5",
+    "change": "c.331A>G (p.Ala111Thr)",
+    "effect": "Missense",
+    "clinical": "Trait-associated",
+    "condition": "Lighter skin pigmentation (Europe, South Asia)",
+    "flag": "Normal",
+    "source": "dbSNP rs1426654"
+  },
+  "SLC45A2_F374L": {
+    "gene": "SLC45A2",
+    "change": "c.1122C>G (p.Phe374Leu)",
+    "effect": "Missense",
+    "clinical": "Trait-associated",
+    "condition": "Lighter skin, hair, eyes (Europe)",
+    "flag": "Normal",
+    "source": "dbSNP rs16891982"
+  },
+  "OCA2_R419Q": {
+    "gene": "OCA2",
+    "change": "c.1256G>A (p.Arg419Gln)",
+    "effect": "Missense",
+    "clinical": "Trait-associated",
+    "condition": "Lighter eye pigmentation",
+    "flag": "Normal",
+    "source": "dbSNP rs1800407"
+  },
+  "HERC2_rs12913832": {
+    "gene": "HERC2",
+    "change": "Intron regulatory variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "Blue eye color (Europe)",
+    "flag": "Normal",
+    "source": "dbSNP rs12913832"
+  },
+  "ASIP_rs6058017": {
+    "gene": "ASIP",
+    "change": "Promoter variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "Freckles, lighter pigmentation",
+    "flag": "Normal",
+    "source": "dbSNP rs6058017"
+  },
+  "KITLG_rs12821256": {
+    "gene": "KITLG",
+    "change": "Regulatory variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "Hair color and skin tone variation",
+    "flag": "Normal",
+    "source": "dbSNP rs12821256"
+  },
+  "MC1R_R151C": {
+    "gene": "MC1R",
+    "change": "c.451C>T (p.Arg151Cys)",
+    "effect": "Missense",
+    "clinical": "Risk-associated",
+    "condition": "Red hair, fair skin, melanoma susceptibility",
+    "flag": "Risk",
+    "source": "ClinVar rs1805007"
+  },
+  "TYR_W402*": {
+    "gene": "TYR",
+    "change": "c.1206G>A (p.Trp402Ter)",
+    "effect": "Nonsense",
+    "clinical": "Pathogenic",
+    "condition": "Albinism (OCA1)",
+    "flag": "Pathogenic",
+    "source": "ClinVar rs1042602"
+  },
+  "MFSD12_rs10424065": {
+    "gene": "MFSD12",
+    "change": "Regulatory variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "Darker pigmentation (Africa)",
+    "flag": "Normal",
+    "source": "Nat Genet 2017"
+  },
+  "MFSD12_rs112332856": {
+    "gene": "MFSD12",
+    "change": "Missense",
+    "effect": "Missense",
+    "clinical": "Trait-associated",
+    "condition": "Darker skin pigmentation (Africa)",
+    "flag": "Normal",
+    "source": "Nat Genet 2017"
+  },
+  "DDB1_rs7948623": {
+    "gene": "DDB1",
+    "change": "Regulatory variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "UV protection and darker pigmentation (Africa)",
+    "flag": "Normal",
+    "source": "Nat Genet 2017"
+  },
+  "SLC24A4_rs12896399": {
+    "gene": "SLC24A4",
+    "change": "Regulatory variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "Eye and skin tone variation",
+    "flag": "Normal",
+    "source": "dbSNP rs12896399"
+  },
+  "TYRP1_rs13289810": {
+    "gene": "TYRP1",
+    "change": "Regulatory variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "Darker pigmentation (Africa, Oceania)",
+    "flag": "Normal",
+    "source": "dbSNP rs13289810"
+  },
+  "ADAMTS20_rs72755233": {
+    "gene": "ADAMTS20",
+    "change": "Regulatory variant",
+    "effect": "Regulatory",
+    "clinical": "Trait-associated",
+    "condition": "Hair/skin pigmentation variation (Africa)",
+    "flag": "Normal",
+    "source": "dbSNP rs72755233"
+  }
+}
