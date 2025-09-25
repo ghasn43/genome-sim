@@ -92,7 +92,12 @@ def estimate_skin_color_from_photo(uploaded_file):
 # -------------------
 st.title("🧬 Pigmentation Simulation Studio (Educational)")
 
-mode = st.radio("Choose mode:", ["Trait Simulation", "Disease Awareness", "Custom Variant Editor", "Photo Skin Tone Estimator"])
+mode = st.radio("Choose mode:", [
+    "Trait Simulation",
+    "Disease Awareness",
+    "Custom Variant Editor",
+    "Photo Skin Tone Estimator"
+])
 
 # -------------------
 # Mode 1: Trait Simulation
@@ -130,6 +135,37 @@ elif mode == "Disease Awareness":
         skin_swatch([0.5,0.4,0.3], [tone, tone*0.9, tone*0.8])
     with st.expander("🔎 How variants lead to traits"):
         draw_variant_trait_diagram()
+
+    # Reverse Simulation
+    st.subheader("🎚️ Reverse Simulation: Pick a Skin Tone")
+    target_score = st.slider("Choose desired pigmentation score", -3, 3, 0)
+    sorted_variants = sorted(VISUAL_SCORES.items(), key=lambda x: -abs(x[1]))
+    selected = []
+    score_sum = 0
+    for v, s in sorted_variants:
+        if (target_score > 0 and s > 0) or (target_score < 0 and s < 0):
+            if abs(score_sum + s) <= abs(target_score):
+                selected.append(v)
+                score_sum += s
+        if score_sum == target_score:
+            break
+    tone = (target_score + 3) / 6
+    color = [tone, tone*0.9, tone*0.8]
+    fig, ax = plt.subplots(figsize=(2,2))
+    ax.imshow(np.ones((10,10,3)) * color)
+    ax.axis("off")
+    st.pyplot(fig)
+    st.write(f"Suggested variants for score {target_score}: {', '.join(selected) if selected else 'No perfect match'}")
+    if st.button("💾 Save this reverse simulation to palette"):
+        new_mix = {
+            "variants": selected,
+            "score": target_score,
+            "color": color
+        }
+        st.session_state.palette.append(new_mix)
+        with open(PALETTE_FILE, "w", encoding="utf-8") as f:
+            json.dump(st.session_state.palette, f, indent=2)
+        st.success(f"✅ Reverse simulation saved into palette as ReverseSim_{len(st.session_state.palette)}!")
 
 # -------------------
 # Mode 3: Custom Variant Editor
