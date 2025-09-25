@@ -2,6 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 import random, json, os, io
+from PIL import Image
 
 # -------------------
 # Files
@@ -64,23 +65,40 @@ def skin_swatch(before_tone, after_tone, label_before="Baseline", label_after="V
     ax[1].imshow(np.ones((10,10,3)) * after_tone); ax[1].axis("off"); ax[1].set_title(label_after, fontsize=8)
     st.pyplot(fig)
 
+def draw_variant_trait_diagram():
+    import matplotlib.patches as patches
+    fig, ax = plt.subplots(figsize=(6,3))
+    ax.axis("off")
+    # Boxes
+    ax.add_patch(patches.Rectangle((0.05,0.4),0.25,0.2,fill=True,color="#f2f2f2",ec="black"))
+    ax.text(0.175,0.5,"Variants\n(Genotype)",ha="center",va="center",fontsize=10)
+    ax.add_patch(patches.Rectangle((0.4,0.4),0.25,0.2,fill=True,color="#f2f2f2",ec="black"))
+    ax.text(0.525,0.5,"Environment\n(Sun, Diet)",ha="center",va="center",fontsize=10)
+    ax.add_patch(patches.Rectangle((0.75,0.4),0.2,0.2,fill=True,color="#ffe6cc",ec="black"))
+    ax.text(0.85,0.5,"Trait\n(Skin Tone)",ha="center",va="center",fontsize=10)
+    # Arrows
+    ax.annotate("", xy=(0.38,0.5), xytext=(0.3,0.5), arrowprops=dict(arrowstyle="->", lw=2))
+    ax.annotate("", xy=(0.73,0.5), xytext=(0.65,0.5), arrowprops=dict(arrowstyle="->", lw=2))
+    st.pyplot(fig)
+
+def estimate_skin_color_from_photo(uploaded_file):
+    image = Image.open(uploaded_file).convert("RGB")
+    arr = np.array(image)
+    avg_color = arr.mean(axis=(0,1)) / 255.0  # Normalize to 0–1
+    return avg_color
+
 # -------------------
 # App Title
 # -------------------
 st.title("🧬 Pigmentation Simulation Studio (Educational)")
 
-mode = st.radio("Choose mode:", ["Trait Simulation", "Disease Awareness", "Custom Variant Editor"])
+mode = st.radio("Choose mode:", ["Trait Simulation", "Disease Awareness", "Custom Variant Editor", "Photo Skin Tone Estimator"])
 
 # -------------------
 # Mode 1: Trait Simulation
 # -------------------
 if mode == "Trait Simulation":
-    with st.expander("ℹ️ What is Trait Simulation?"):
-        st.markdown("""
-        Trait Simulation lets you explore what happens when you change a base in a DNA sequence.
-        It shows original vs edited codon/protein, and mutation type (silent/missense/nonsense).
-        """)
-
+    st.subheader("🧪 Trait Simulation")
     dna_input = st.text_area("Enter DNA sequence:", value="ATGGAGGAGCCGCAGTCAGATCCTAGCGTCGAGCCCCCT").upper()
     if len(dna_input) % 3 == 0:
         codon_index = st.number_input("Codon index to mutate (0-based):", 0, (len(dna_input)//3)-1, 2)
@@ -93,47 +111,11 @@ if mode == "Trait Simulation":
             st.write(f"Original Codon: {orig_codon}")
             st.write(f"Edited DNA: {edited_dna}")
 
-            # Allow saving as a custom variant
-            if st.button("💾 Save this mutation as custom variant"):
-                custom_name = f"CustomVar_{len(st.session_state.palette)+1}"
-                effect = "Silent" if orig_codon == edited_dna[codon_index*3:codon_index*3+3] else "Missense"
-                score = -1 if effect == "Missense" else 0
-
-                new_variant = {
-                    "gene": "CustomGene",
-                    "change": f"{orig_codon}>{edited_dna[codon_index*3:codon_index*3+3]}",
-                    "effect": effect,
-                    "clinical": "User-defined",
-                    "condition": "Educational simulation",
-                    "flag": "Custom",
-                    "source": "User input"
-                }
-
-                VARIANT_DB[custom_name] = new_variant
-                VISUAL_SCORES[custom_name] = score
-
-                tone = (score + 3) / 6
-                st.session_state.palette.append({
-                    "variants": [custom_name],
-                    "score": score,
-                    "color": [tone, tone*0.9, tone*0.8]
-                })
-
-                with open(PALETTE_FILE, "w", encoding="utf-8") as f:
-                    json.dump(st.session_state.palette, f, indent=2)
-
-                st.success(f"✅ Custom variant saved as {custom_name} and added to palette!")
-
 # -------------------
 # Mode 2: Disease Awareness
 # -------------------
 elif mode == "Disease Awareness":
-    with st.expander("ℹ️ What is a Variant?"):
-        st.markdown("""
-        A genetic variant is a change in DNA compared to a reference.
-        Some are benign, some are trait-associated (e.g., skin tone), some pathogenic.
-        """)
-
+    st.subheader("🧬 Explore Annotated Variants")
     choice = st.selectbox("Select a variant:", list(VARIANT_DB.keys()))
     variant = VARIANT_DB[choice]
     st.write(f"**Gene:** {variant['gene']}")
@@ -141,42 +123,19 @@ elif mode == "Disease Awareness":
     st.write(f"**Effect:** {variant['effect']}")
     st.write(f"**Condition:** {variant['condition']}")
     st.write(f"**Flag:** {variant['flag']}")
-
     if choice in VISUAL_SCORES:
         score = VISUAL_SCORES[choice]
         skin_tone_bar(score)
         tone = (score + 3)/6
         skin_swatch([0.5,0.4,0.3], [tone, tone*0.9, tone*0.8])
-
-    # Polygenic Mixing
-    st.subheader("🎨 Polygenic Mixing")
-    selected_variants = st.multiselect(
-        "Select variants to combine:",
-        list(VARIANT_DB.keys()),
-        default=st.session_state.get("selected_variants", [])
-    )
-    if selected_variants:
-        combined_score = sum(VISUAL_SCORES.get(v,0) for v in selected_variants)
-        combined_score = max(-3, min(3, combined_score))
-        tone = (combined_score + 3)/6
-        after_color = [tone, tone*0.9, tone*0.8]
-        skin_swatch([0.5,0.4,0.3], after_color, "Baseline", "Mixed")
-
-        if st.button("💾 Save this mix to palette"):
-            st.session_state.palette.append({
-                "variants": selected_variants.copy(),
-                "score": combined_score,
-                "color": after_color
-            })
-            with open(PALETTE_FILE, "w", encoding="utf-8") as f:
-                json.dump(st.session_state.palette, f, indent=2)
+    with st.expander("🔎 How variants lead to traits"):
+        draw_variant_trait_diagram()
 
 # -------------------
 # Mode 3: Custom Variant Editor
 # -------------------
 elif mode == "Custom Variant Editor":
     st.subheader("🛠️ Create Your Own Variant")
-
     with st.form("custom_variant_form"):
         custom_name = st.text_input("Variant name", value=f"CustomVar_{len(st.session_state.palette)+1}")
         gene_name = st.text_input("Gene name", value="CustomGene")
@@ -186,7 +145,6 @@ elif mode == "Custom Variant Editor":
         condition = st.text_area("Condition / Notes", value="Educational simulation")
         score = st.slider("Pigmentation score (darker -3 ←→ lighter +3)", -3, 3, 0)
         submit = st.form_submit_button("💾 Save Custom Variant")
-
     if submit:
         new_variant = {
             "gene": gene_name,
@@ -197,18 +155,29 @@ elif mode == "Custom Variant Editor":
             "flag": "Custom",
             "source": "User input"
         }
-
         VARIANT_DB[custom_name] = new_variant
         VISUAL_SCORES[custom_name] = score
-
         tone = (score + 3) / 6
         st.session_state.palette.append({
             "variants": [custom_name],
             "score": score,
             "color": [tone, tone*0.9, tone*0.8]
         })
-
         with open(PALETTE_FILE, "w", encoding="utf-8") as f:
             json.dump(st.session_state.palette, f, indent=2)
-
         st.success(f"✅ Custom variant '{custom_name}' saved and added to palette!")
+
+# -------------------
+# Mode 4: Photo Skin Tone Estimator
+# -------------------
+elif mode == "Photo Skin Tone Estimator":
+    st.subheader("📸 Estimate Skin Tone from a Photo (Phenotype)")
+    uploaded_file = st.file_uploader("Upload a face or skin photo", type=["jpg","jpeg","png"])
+    if uploaded_file:
+        avg_color = estimate_skin_color_from_photo(uploaded_file)
+        fig, ax = plt.subplots(figsize=(2,2))
+        ax.imshow(np.ones((10,10,3))*avg_color)
+        ax.axis("off")
+        st.pyplot(fig)
+        st.write(f"Estimated average skin tone color (normalized RGB): {avg_color}")
+        st.info("⚠️ Note: This is only a color estimate. It does NOT reveal DNA variants. For actual variants, lab sequencing is required.")
